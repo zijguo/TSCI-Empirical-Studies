@@ -1,4 +1,4 @@
-# simulation of fix estimator
+# simulation of fix/ee estimator
 
 
 library(MASS)
