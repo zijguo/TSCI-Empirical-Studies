@@ -1,7 +1,7 @@
 # card data
 library(ivmodel)
 data(card.data)
-source("Source-RF-hetero.R",encoding="UTF-8")
+source("Source-RF-hetero2.R",encoding="UTF-8")
 
 
 nsim = 10
