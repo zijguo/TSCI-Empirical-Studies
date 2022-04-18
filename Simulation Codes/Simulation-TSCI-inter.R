@@ -15,17 +15,17 @@ A1gen=function(rho,p){
 }
 
 
-###### dimension change across 20
+###### dimension change across 5,20
 p=5
 ####please set n = 3000
 n=3000
-### setting, change across 1,2,3
+### setting, change across 1
 f.index = 1
-##### change the interaction across 0.25, 0.5, 1
+##### change the interaction across 0.25, 0.5, 0.75, 1
 inter.val=0.25
-#### violation index, change across 1,2
+#### violation index, change across 1
 vio.index = 1
-# error distribution, 2 or 3
+# error distribution, 1, 2 or 3
 error.setting = 1
 ### change round across 1,2,3,4,5,6,7,8,9,10
 round=1
