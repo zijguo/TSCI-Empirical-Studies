@@ -19,23 +19,18 @@ open(gi)
 
 ###### dimension change across 20
 p=5
-#p = as.numeric(readLines(gi,n=1))
 ####please set n = 3000
 n=3000
-#n = as.numeric(readLines(gi,n=1))
 ### setting, change across 1,2,3
 f.index = 1
 ##### change the interaction across 0.25, 0.5, 1
 inter.val=0.25
-#inter.val = as.numeric(readLines(gi,n=1))
 #### violation index, change across 1,2
 vio.index = 1
 # error distribution, 2 or 3
 error.setting = 1
 ### change round across 1,2,3,4,5,6,7,8,9,10
 round=1
-#round = as.numeric(readLines(gi,n=1))
-#print(paste("p: ",p," n: ", n," inter: ", inter.val, " round: ", round))
 #### a denotes the IV strength, set as 1
 a = 1
 ##### tau denotes the violation strength, set as 1
@@ -157,27 +152,27 @@ for(i in 1:nsim) {
   vio.space = list(cbind(interaction,Z))
   
   ### random forest based methods
-  outputs.2 = TSCI.RF(Y,D,Z,X,vio.space = vio.space,mtry=c(1:p),min.node.size=c(1,3,5,8,10,12,14,16,18,20))
-  results.list[[i]] = outputs.2
+  outputs = TSCI.RF(Y,D,Z,X,vio.space = vio.space,mtry=c(1:p),min.node.size=c(1,3,5,8,10,12,14,16,18,20))
+  results.list[[i]] = outputs
   
   ### outputs
-  Coef.matrix.rf[i,] = outputs.2$Coef.vec
-  sd.matrix.rf[i,] = outputs.2$sd.vec
-  iv.str[i,] = outputs.2$iv.str; iv.thol[i,] = outputs.2$iv.thol;
+  Coef.matrix.rf[i,] = outputs$Coef.vec
+  sd.matrix.rf[i,] = outputs$sd.vec
+  iv.str[i,] = outputs$iv.str; iv.thol[i,] = outputs$iv.thol;
   
-  Coef.robust[i,] = outputs.2$Coef.robust; sd.robust[i,] = outputs.2$sd.robust;
-  Qmax[i,1] = outputs.2$Qmax; q.comp[i,1] = outputs.2$q.comp; q.robust[i,1] = outputs.2$q.robust;
+  Coef.robust[i,] = outputs$Coef.robust; sd.robust[i,] = outputs$sd.robust;
+  Qmax[i,1] = outputs$Qmax; q.comp[i,1] = outputs$q.comp; q.robust[i,1] = outputs$q.robust;
   Coef.oracle[i,1] = Coef.matrix.rf[i,1+1]
   Coef.oracle[i,2] = Coef.matrix.rf[i,1+Q+1]
   sd.oracle[i,1] = sd.matrix.rf[i,1+1]
   sd.oracle[i,2] = sd.matrix.rf[i,1+Q+1]
-  run.OLS[i,1] = outputs.2$run.OLS; weak.iv[i,1] = outputs.2$weak.iv
-  trace.T[i,] = outputs.2$trace.T
-  explained.iv[i,] = outputs.2$explained.iv
+  run.OLS[i,1] = outputs$run.OLS; weak.iv[i,1] = outputs$weak.iv
+  trace.T[i,] = outputs$trace.T
+  explained.iv[i,] = outputs$explained.iv
   
-  SigmaSqY[i,] = outputs.2$SigmaSqY
-  SigmaSqD[i] = outputs.2$SigmaSqD
-  SigmaSqY.Qmax[i,1] = outputs.2$SigmaSqY.Qmax
+  SigmaSqY[i,] = outputs$SigmaSqY
+  SigmaSqD[i] = outputs$SigmaSqD
+  SigmaSqY.Qmax[i,1] = outputs$SigmaSqY.Qmax
 }
 
 
