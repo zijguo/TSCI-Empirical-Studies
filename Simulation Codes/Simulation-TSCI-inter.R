@@ -14,8 +14,6 @@ A1gen=function(rho,p){
   A1
 }
 
-gi = file("stdin")
-open(gi)
 
 ###### dimension change across 20
 p=5
