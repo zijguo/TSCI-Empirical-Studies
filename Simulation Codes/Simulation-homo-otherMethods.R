@@ -187,9 +187,9 @@ for(i in 1:nsim) {
 
   # 
   # 
-  # naiveRF.outputs <- naiveRF.stat(Y, D, Cov.aug[,-(1:(Q-1-vio.index))], A1.ind, weight.2)
-  # Coef.naive[i,1] <- naiveRF.outputs$betaHat
-  # sd.naive[i,1] <- naiveRF.outputs$sd
+  naiveRF.outputs <- naiveRF.stat(Y, D, Cov.aug[,-(1:(Q-1-vio.index))], A1.ind, weight.2)
+  Coef.naive[i,1] <- naiveRF.outputs$betaHat
+  sd.naive[i,1] <- naiveRF.outputs$sd
   # rm(weight.2)
   
   
