@@ -212,7 +212,8 @@ TSCI.RF.fit <- function(D,Z,X,num.trees,mtry,max.depth,min.node.size,split.prop,
                       mtry=params.grid$mtry[i],
                       max.depth = params.grid$max.depth[i],
                       min.node.size = params.grid$min.node.size[i],
-                      importance = "impurity"
+                      importance = "impurity",
+                      num.threads = 1
     )
     if (temp.A2$prediction.error <= MSE.oob.A2) {
       forest.A2 <- temp.A2
@@ -298,6 +299,21 @@ TSCI.RF.stat <- function(D.rep, Cov.rep, weight, n, eps.hat, delta.hat, str.thol
   explained.iv <- as.numeric(t(D.resid)%*%weight%*%weight%*%D.resid)
   sd <- sqrt(sum(eps.hat^2*(weight%*%D.resid)^2))/D.RSS
   
+  # bootstrapped sd
+  delta.cent = as.vector(delta.hat - mean(delta.hat))
+  eps.cent = as.vector(eps.hat - mean(eps.hat))
+  u.matrix = matrix(rnorm(n.A1*300), ncol = 300)
+  delta.boo.matrix = u.matrix * delta.cent
+  eps.boo.matrix = u.matrix * eps.cent
+  eps.resid = resid(lm.fit(x = as.matrix(Cov.rep), y = as.matrix(weight %*% eps.boo.matrix)))
+  bias.term1 = t(D.resid) %*% eps.resid
+  bias.Err1 <- - colSums(eps.boo.matrix * delta.boo.matrix * RSS.V)
+  N.vec <- (bias.term1 + bias.Err1) / D.RSS
+  sd <- sd(N.vec)
+  # augmented sd for relatively weak IV
+  if (iv.str <= 100) {
+      sd = 1.1 * sd
+  }
   
   
   ### standard errors of bias-corrected estimator
@@ -429,10 +445,13 @@ TSCI.RF.Selection <- function(Y, D, Cov.aug, A1.ind, weight, Q, rm.ind, intercep
     warning("Weak IV, even if the IV is assumed to be valid; run OLS") # stop, output results of OLS
     run.OLS <- TRUE
     Qmax <- 1
+    Qmax.output <- NULL
   } else {
     Qmax <- sum(ivtest.vec)-1
+    Qmax.output = Qmax
     if (Qmax==0) {
       warning("Weak IV, if the IV is invalid. We still test the IV invalidity.") # zijian: we need to rewrite this sentence...
+      Qmax.output <- Qmax
       Qmax <- 1
       weak.iv = TRUE
     }
@@ -505,12 +524,6 @@ TSCI.RF.Selection <- function(Y, D, Cov.aug, A1.ind, weight, Q, rm.ind, intercep
     }
   }
   
-  ### invalidity of TSLS
-  if (q.comp>=1) {
-    invalidity <- 1
-  } else {
-    invalidity <- 0
-  }
   q.robust <- min(q.comp+1, Qmax)
   Coef.robust[1] <- Coef.vec[q.comp+1]
   Coef.robust[2] <- Coef.vec[q.comp+Q+1]
@@ -523,6 +536,22 @@ TSCI.RF.Selection <- function(Y, D, Cov.aug, A1.ind, weight, Q, rm.ind, intercep
   CI.robust = rbind(Coef.robust + qnorm(alpha/2)*sd.robust,Coef.robust + qnorm(1-alpha/2)*sd.robust)
   rownames(CI.robust) = c("lower","upper")
   
+  # cases in which comparison is not needed
+  if (Qmax.output == 0) {
+      q.comp = 0
+      q.robust = 0
+  } else if (is.null(Qmax.output)) {
+      q.comp = NULL
+      q.robust = NULL
+  }
+  
+  ### invalidity of TSLS
+  if (q.comp>=1) {
+      invalidity <- 1
+  } else {
+      invalidity <- 0
+  }
+  
   returnList = list(Coef.vec = Coef.vec,
                     sd.vec = sd.vec,
                     Coef.robust = Coef.robust,
@@ -534,7 +563,7 @@ TSCI.RF.Selection <- function(Y, D, Cov.aug, A1.ind, weight, Q, rm.ind, intercep
                     SigmaSqY.Qmax = mean(eps.Qmax^2),
                     trace.T = trace.T,
                     explained.iv = explained.iv,
-                    Qmax = Qmax,
+                    Qmax = Qmax.output,
                     q.comp =q.comp, q.robust = q.robust,
                     invalidity = invalidity,
                     run.OLS = run.OLS,
